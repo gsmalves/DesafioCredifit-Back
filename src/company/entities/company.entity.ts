@@ -25,7 +25,7 @@ export class Company {
     @Column()
     password: string;
   
-    @OneToMany(() => Employee, (employee) => employee.company)
+    @OneToMany(() => Employee, (employee) => employee.companyId)
     employees: Employee[];
 
 }

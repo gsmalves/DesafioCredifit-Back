@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Company } from '../../company/entities/company.entity';
 @Entity()
 export class Employee {
   @PrimaryGeneratedColumn()
@@ -22,5 +22,6 @@ export class Employee {
   salary: number;
 
   @ManyToOne(() => Company, (company) => company.employees)
-  company: Company;
-}
+  companyId: number;
+  
+}   
