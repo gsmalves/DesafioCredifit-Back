@@ -8,6 +8,7 @@ import { EmployeeModule } from './employee/employee.module';
 import { Employee } from './employee/entities/employee.entity';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
+import { LoanModule } from './loan/loan.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     CompanyModule,
     EmployeeModule,
+    LoanModule,
 
   ],
   controllers: [],
