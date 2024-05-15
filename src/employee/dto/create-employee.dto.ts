@@ -4,7 +4,7 @@ import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CreateEmployeeDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  fullName: string;
 
   @IsNotEmpty()
   @IsString()
