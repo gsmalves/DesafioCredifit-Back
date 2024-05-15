@@ -1,5 +1,28 @@
 /* eslint-disable prettier/prettier */
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateCompanyDto } from './create-company.dto';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
-export class UpdateCompanyDto extends PartialType(CreateCompanyDto) {}
+export class UpdateCompanyDto {
+    @IsOptional()
+    @IsString()
+    cnpj?: string;
+  
+    @IsOptional()
+    @IsString()
+    businessName?: string;
+  
+    @IsOptional()
+    @IsString()
+    fullName?: string;
+  
+    @IsOptional()
+    @IsString()
+    cpf?: string;
+  
+    @IsOptional()
+    @IsEmail()
+    email?: string;
+  
+    @IsOptional()
+    @IsString()
+    password?: string;
+  }
