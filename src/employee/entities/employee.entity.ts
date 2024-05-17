@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Company } from '../../company/entities/company.entity';
+import { Loan } from '../../loan/entities/loan.entity';
 @Entity()
 export class Employee {
   @PrimaryGeneratedColumn()
@@ -23,5 +24,8 @@ export class Employee {
 
   @ManyToOne(() => Company, (company) => company.employees)
   companyId: number;
+
+  @OneToMany(() => Loan, (loan) => loan.employee)
+  loans: Loan[];
   
 }   

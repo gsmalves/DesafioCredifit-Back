@@ -9,6 +9,7 @@ import { Employee } from './employee/entities/employee.entity';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 import { LoanModule } from './loan/loan.module';
+import { InstallmentModule } from './installment/installment.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { LoanModule } from './loan/loan.module';
     CompanyModule,
     EmployeeModule,
     LoanModule,
+    InstallmentModule,
 
   ],
   controllers: [],
