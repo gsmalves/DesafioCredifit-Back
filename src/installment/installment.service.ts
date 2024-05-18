@@ -1,26 +1,39 @@
-import { Injectable } from '@nestjs/common';
-import { CreateInstallmentDto } from './dto/create-installment.dto';
-import { UpdateInstallmentDto } from './dto/update-installment.dto';
+/* eslint-disable prettier/prettier */
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Loan } from '../loan/entities/loan.entity';
+import { Installment } from './entities/installment.entity';
 
 @Injectable()
 export class InstallmentService {
-  create(createInstallmentDto: CreateInstallmentDto) {
-    return 'This action adds a new installment';
+  constructor(
+    @InjectRepository(Installment)
+    private readonly installmentRepository: Repository<Installment>,
+    @InjectRepository(Loan)
+    private readonly loanRepository: Repository<Loan>,
+  ) {}
+
+  async findAll(): Promise<Installment[]> {
+    return this.installmentRepository.find({ relations: ['loan'] });
   }
 
-  findAll() {
-    return `This action returns all installment`;
+  async findOne(id: number): Promise<Installment> {
+    const installment = await this.installmentRepository.findOne({ where: { id }, relations: ['loan'] });
+    if (!installment) {
+      throw new HttpException('Installment not found', HttpStatus.NOT_FOUND);
+    }
+    return installment;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} installment`;
+  async markAsPaid(id: number): Promise<Installment> {
+    const installment = await this.findOne(id);
+    installment.paid = true;
+    return this.installmentRepository.save(installment);
   }
 
-  update(id: number, updateInstallmentDto: UpdateInstallmentDto) {
-    return `This action updates a #${id} installment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} installment`;
+  async remove(id: number): Promise<void> {
+    const installment = await this.findOne(id);
+    await this.installmentRepository.remove(installment);
   }
 }

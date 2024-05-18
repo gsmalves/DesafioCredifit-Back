@@ -1,34 +1,29 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import { Installment } from './entities/installment.entity';
 import { InstallmentService } from './installment.service';
-import { CreateInstallmentDto } from './dto/create-installment.dto';
-import { UpdateInstallmentDto } from './dto/update-installment.dto';
 
-@Controller('installment')
+@Controller('installments')
 export class InstallmentController {
   constructor(private readonly installmentService: InstallmentService) {}
 
-  @Post()
-  create(@Body() createInstallmentDto: CreateInstallmentDto) {
-    return this.installmentService.create(createInstallmentDto);
-  }
-
   @Get()
-  findAll() {
+  findAll(): Promise<Installment[]> {
     return this.installmentService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.installmentService.findOne(+id);
+  findOne(@Param('id') id: number): Promise<Installment> {
+    return this.installmentService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInstallmentDto: UpdateInstallmentDto) {
-    return this.installmentService.update(+id, updateInstallmentDto);
+  @Patch(':id/pay')
+  markAsPaid(@Param('id') id: number): Promise<Installment> {
+    return this.installmentService.markAsPaid(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.installmentService.remove(+id);
+  remove(@Param('id') id: number): Promise<void> {
+    return this.installmentService.remove(id);
   }
 }
