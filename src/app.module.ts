@@ -6,11 +6,10 @@ import { CompanyModule } from './company/company.module';
 import { Company } from './company/entities/company.entity';
 import { EmployeeModule } from './employee/employee.module';
 import { Employee } from './employee/entities/employee.entity';
-import { User } from './user/entities/user.entity';
-import { UserModule } from './user/user.module';
+// import { Installment } from './installment/entities/installment.entity';
+// import { InstallmentModule } from './installment/installment.module';
+import { Loan } from './loan/entities/loan.entity';
 import { LoanModule } from './loan/loan.module';
-import { InstallmentModule } from './installment/installment.module';
-
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -20,16 +19,16 @@ import { InstallmentModule } from './installment/installment.module';
       port: 5432,
       password: 'admin2024@',
       username: 'postgres',
-      entities: [User, Company, Employee],
+      entities: [ Company, Employee,Loan, ],
       database: 'postgres',
       synchronize: true,
       logging: true,
       }),
-    UserModule,
+
     CompanyModule,
     EmployeeModule,
     LoanModule,
-    InstallmentModule,
+   
 
   ],
   controllers: [],

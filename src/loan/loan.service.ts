@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { Repository } from 'typeorm';
 import { Employee } from '../employee/entities/employee.entity';
-import { Installment } from '../installment/entities/installment.entity';
 import { Loan } from './entities/loan.entity';
 
 @Injectable()
@@ -14,8 +13,6 @@ export class LoanService {
     private readonly loanRepository: Repository<Loan>,
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
-    @InjectRepository(Installment)
-    private readonly installmentRepository: Repository<Installment>,
   ) {}
 
   async createLoan(employeeId: number, amount: number, installments: number): Promise<Loan> {
@@ -27,11 +24,12 @@ export class LoanService {
     // Calcula a margem disponível para consignado (35% do salário)
     const consignableMargin = employee.salary * 0.35;
   
-    // Verifica se o valor do empréstimo solicitado excede a margem disponível
-    const requestedAmount = amount * installments; // Total do valor do empréstimo
-    if (requestedAmount > consignableMargin) {
+    // Verifica se o valor da parcela do empréstimo solicitado excede a margem disponível
+    const monthlyInstallmentAmount = amount / installments;
+    if (monthlyInstallmentAmount > consignableMargin) {
       throw new HttpException('Requested loan amount exceeds consignable margin', HttpStatus.BAD_REQUEST);
     }
+  
     const scoreResponse = await axios.get(`https://run.mocky.io/v3/dd92b9c2-d375-4a85-9e46-207c404b0bb4/${employee.cpf}`);
     const score = scoreResponse.data.score;
 
@@ -57,22 +55,19 @@ export class LoanService {
     loan.employeeId = employee.id;
     loan.amount = amount;
     loan.installments = installments;
-    loan.installmentAmount = amount / installments;
+    loan.installmentAmount = monthlyInstallmentAmount;
     loan.firstInstallmentDate = new Date();
     loan.firstInstallmentDate.setMonth(loan.firstInstallmentDate.getMonth() + 1);
 
-    const savedLoan = await this.loanRepository.save(loan);
-
-    // Criar as parcelas
+    const installmentsList = [];
     for (let i = 0; i < installments; i++) {
-      const installment = new Installment();
-      installment.loan = savedLoan;
-      installment.loanId = savedLoan.id;
-      installment.amount = loan.installmentAmount;
-      installment.dueDate = new Date(loan.firstInstallmentDate);
-      installment.dueDate.setMonth(installment.dueDate.getMonth() + i);
-      await this.installmentRepository.save(installment);
+      const dueDate = new Date(loan.firstInstallmentDate);
+      dueDate.setMonth(dueDate.getMonth() + i);
+      installmentsList.push({ amount: loan.installmentAmount, dueDate, paymentStatus: 'pending' });
     }
+    loan.installmentsList = installmentsList;
+
+    const savedLoan = await this.loanRepository.save(loan);
 
     // Chamar o mock de gateway de pagamentos
     try {
@@ -84,15 +79,31 @@ export class LoanService {
 
       if (paymentResponse.data.success) {
         savedLoan.paymentStatus = 'paid';
+        // Atualizar o status das parcelas para "paid"
+        savedLoan.installmentsList.forEach(installment => installment.paymentStatus = 'paid');
       } else {
         savedLoan.paymentStatus = 'failed';
+        // Atualizar o status das parcelas para "failed"
+        savedLoan.installmentsList.forEach(installment => installment.paymentStatus = 'failed');
       }
     } catch (error) {
       savedLoan.paymentStatus = 'failed';
+      // Atualizar o status das parcelas para "failed"
+      savedLoan.installmentsList.forEach(installment => installment.paymentStatus = 'failed');
     }
 
     return this.loanRepository.save(savedLoan);
   }
 
+  async getAllLoans(): Promise<Loan[]> {
+    return this.loanRepository.find({ relations: ['employee'] });
+  }
 
+  async getLoanById(id: number): Promise<Loan> {
+    const loan = await this.loanRepository.findOne({ where: { id }, relations: ['employee'] });
+    if (!loan) {
+      throw new HttpException('Loan not found', HttpStatus.NOT_FOUND);
+    }
+    return loan;
+  }
 }
