@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -21,7 +22,7 @@ export class EmployeeController {
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Employee> {
-    return this.employeeService.findOne(+id);
+    return this.employeeService.findOneById(+id);
   }
 
   @Patch(':id')

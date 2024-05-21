@@ -23,15 +23,11 @@ export class LoanController {
     return this.loanService.getLoanById(id);
   }
 
-  @Get(':employeeId')
+  @Get(':employee/:employeeId')
   async getLoansByEmployeeId(@Param('employeeId') employeeId: number): Promise<Loan[]> {
     return this.loanService.getLoansByEmployeeId(employeeId);
   }
 
-  @Post('test')
-  async createLoanTest(@Body() createLoanDto: { employeeId: number; amount: number; installments: number }): Promise<Loan> {
-    const { employeeId, amount, installments } = createLoanDto;
-    return this.loanService.createLoanTest(employeeId, amount, installments);
-  }
+
 
 }

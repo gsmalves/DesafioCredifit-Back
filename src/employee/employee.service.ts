@@ -16,30 +16,28 @@ export class EmployeeService {
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     const { fullName, cpf, email, password, salary, companyId } = createEmployeeDto;
 
-    // Criar o funcionário associado à empresa
     const employee = new Employee();
     employee.fullName = fullName;
     employee.cpf = cpf;
     employee.email = email;
     employee.password = password;
     employee.salary = salary;
-    employee.companyId = companyId; // Associar o funcionário à empresa
+    employee.companyId = companyId;
 
-    // Salvar o funcionário
     return await this.employeeRepository.save(employee);
   }
 
   async findAll(): Promise<Employee[]> {
-    return await this.employeeRepository.find();
+    return await this.employeeRepository.find({ relations: ['companyId'] });
   }
 
-  async findOne(id: number): Promise<Employee> {
-    const employee = await this.employeeRepository.findOneBy({id});
-    if (!employee) {
-      throw new NotFoundException('Employee not found');
-    }
-    return employee;
+  async findOneById(id: number): Promise<Employee> {
+    return this.employeeRepository.findOne({ 
+      where: { id },
+      relations: ['companyId']
+    });
   }
+  
 
   async update(id: number, updateEmployeeDto: UpdateEmployeeDto): Promise<Employee> {
     const employee = await this.employeeRepository.findOneBy({id});

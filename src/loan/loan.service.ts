@@ -116,30 +116,5 @@ export class LoanService {
 
   }
 
-  async createLoanTest(employeeId: number, amount: number, installments: number): Promise<Loan> {
-  // Supondo que você tenha obtido o empregado diretamente por meio do ID, sem realizar validações extras
-  const employee = await this.employeeRepository.findOne({ where: { id: employeeId } });
-
-  // Criar um novo empréstimo
-  const loan = new Loan();
-  loan.employee = employee;
-  loan.amount = amount;
-  loan.installments = installments;
-  loan.installmentAmount = amount / installments;
-  loan.firstInstallmentDate = new Date();
-  loan.firstInstallmentDate.setMonth(loan.firstInstallmentDate.getMonth() + 1);
-
-  // Criar uma lista de parcelas pendentes
-  const installmentsList = [];
-  for (let i = 0; i < installments; i++) {
-    const dueDate = new Date(loan.firstInstallmentDate);
-    dueDate.setMonth(dueDate.getMonth() + i);
-    installmentsList.push({ amount: loan.installmentAmount, dueDate, paymentStatus: 'pending' });
-  }
-  loan.installmentsList = installmentsList;
-
-  // Salvar o empréstimo no banco de dados
-  return this.loanRepository.save(loan);
-}
 
 }
