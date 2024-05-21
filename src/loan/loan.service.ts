@@ -30,7 +30,7 @@ export class LoanService {
       throw new HttpException('Requested loan amount exceeds consignable margin', HttpStatus.BAD_REQUEST);
     }
   
-    const scoreResponse = await axios.get(`https://run.mocky.io/v3/dd92b9c2-d375-4a85-9e46-207c404b0bb4/${employee.cpf}`);
+    const scoreResponse = await axios.get(`https://run.mocky.io/v3/ef99c032-8e04-4e6a-ad3e-6f413a9e707a/${employee.cpf}`);
     const score = scoreResponse.data.score;
 
     let minScore;
@@ -74,10 +74,10 @@ export class LoanService {
       const paymentResponse = await axios.post('https://run.mocky.io/v3/ed999ce0-d115-4f73-b098-6277aabbd144', {
         loanId: savedLoan.id,
         amount: loan.amount,
-        account: employee.email, // Supondo que o email é usado para a conta bancária
+
       });
 
-      if (paymentResponse.data.success) {
+      if (paymentResponse.data.ok) {
         savedLoan.paymentStatus = 'paid';
         // Atualizar o status das parcelas para "paid"
         savedLoan.installmentsList.forEach(installment => installment.paymentStatus = 'paid');
@@ -105,5 +105,41 @@ export class LoanService {
       throw new HttpException('Loan not found', HttpStatus.NOT_FOUND);
     }
     return loan;
+
+  
   }
+  async getLoansByEmployeeId(employeeId: number): Promise<Loan[]> {
+    // Busca todos os empréstimos associados ao funcionário com o ID fornecido
+    const loans = await this.loanRepository.find({ where: { employeeId }, relations: ['employee'] });
+    return loans;
+  
+
+  }
+
+  async createLoanTest(employeeId: number, amount: number, installments: number): Promise<Loan> {
+  // Supondo que você tenha obtido o empregado diretamente por meio do ID, sem realizar validações extras
+  const employee = await this.employeeRepository.findOne({ where: { id: employeeId } });
+
+  // Criar um novo empréstimo
+  const loan = new Loan();
+  loan.employee = employee;
+  loan.amount = amount;
+  loan.installments = installments;
+  loan.installmentAmount = amount / installments;
+  loan.firstInstallmentDate = new Date();
+  loan.firstInstallmentDate.setMonth(loan.firstInstallmentDate.getMonth() + 1);
+
+  // Criar uma lista de parcelas pendentes
+  const installmentsList = [];
+  for (let i = 0; i < installments; i++) {
+    const dueDate = new Date(loan.firstInstallmentDate);
+    dueDate.setMonth(dueDate.getMonth() + i);
+    installmentsList.push({ amount: loan.installmentAmount, dueDate, paymentStatus: 'pending' });
+  }
+  loan.installmentsList = installmentsList;
+
+  // Salvar o empréstimo no banco de dados
+  return this.loanRepository.save(loan);
+}
+
 }
