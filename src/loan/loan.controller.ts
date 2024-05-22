@@ -12,44 +12,44 @@ export class LoanController {
   constructor(private readonly loanService: LoanService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new loan' })
-  @ApiResponse({ status: 201, description: 'The loan has been successfully created.', type: Loan })
+  @ApiOperation({ summary: 'Cria um novo empréstimo' })
+  @ApiResponse({ status: 201, description: 'O empréstimo foi criado com sucesso.', type: Loan })
   async createLoan(@Body() createLoanDto: CreateLoanDto): Promise<Loan> {
     const { employeeId, amount, installments } = createLoanDto;
     return this.loanService.createLoan(employeeId, amount, installments);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all loans' })
-  @ApiResponse({ status: 200, description: 'List of all loans returned successfully.', type: [Loan] })
+  @ApiOperation({ summary: 'Retorna todos os empréstimos' })
+  @ApiResponse({ status: 200, description: 'Lista com todos os empréstimos retornada com sucesso.', type: [Loan] })
   async getAllLoans(): Promise<Loan[]> {
     return this.loanService.getAllLoans();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a loan by ID' })
-  @ApiResponse({ status: 200, description: 'Loan found successfully.', type: Loan })
+  @ApiOperation({ summary: 'Obtém um empréstimo por ID' })
+  @ApiResponse({ status: 200, description: 'Empréstimo encontrado com sucesso.', type: Loan })
   async getLoanById(@Param('id') id: number): Promise<Loan> {
     return this.loanService.getLoanById(id);
   }
 
   @Get(':employee/:employeeId')
-  @ApiOperation({ summary: 'Get loans by employee ID' })
-  @ApiResponse({ status: 200, description: 'List of loans for the specified employee returned successfully.', type: [Loan] })
+  @ApiOperation({ summary: 'Obtém empréstimos associados a um funcionário' })
+  @ApiResponse({ status: 200, description: 'Lista de empréstimos para o funcionário especificado retornados com sucesso.', type: [Loan] })
   async getLoansByEmployeeId(@Param('employeeId') employeeId: number): Promise<Loan[]> {
     return this.loanService.getLoansByEmployeeId(employeeId);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a loan by ID' })
-  @ApiResponse({ status: 200, description: 'Loan deleted successfully.' })
+  @ApiOperation({ summary: 'Deleta um empréstimo pelo ID' })
+  @ApiResponse({ status: 200, description: 'Empréstimo deletado com sucesso.' })
   async deleteLoan(@Param('id') id: number): Promise<void> {
     return this.loanService.deleteLoan(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a loan by ID' })
-  @ApiResponse({ status: 200, description: 'Loan updated successfully.', type: Loan })
+  @ApiOperation({ summary: 'Atualiza um empréstimo pelo ID' })
+  @ApiResponse({ status: 200, description: 'Atualização feita com sucesso.', type: Loan })
   async updateLoan(@Param('id') id: number, @Body() updateLoanDto: UpdateLoanDto): Promise<Loan> {
     return this.loanService.updateLoan(id, updateLoanDto);
   }

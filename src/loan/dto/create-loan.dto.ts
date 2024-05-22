@@ -3,17 +3,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNumber, IsPositive } from 'class-validator';
 
 export class CreateLoanDto {
-  @ApiProperty({ description: 'ID of the employee who is requesting the loan' })
-  @IsInt({ message: 'Employee ID must be an integer' })
+  @ApiProperty({ description: 'ID do funcionário que está solicitando o empréstimo' })
+  @IsInt({ message: 'O ID do funcionário deve ser um número inteiro' })
   employeeId: number;
 
-  @ApiProperty({ description: 'Amount of money requested for the loan' })
-  @IsNumber({}, { message: 'Loan amount must be a number' })
-  @IsPositive({ message: 'Loan amount must be positive' })
+  @ApiProperty({ description: 'Valor do dinheiro solicitado para o empréstimo' })
+  @IsNumber({}, { message: 'O valor do empréstimo deve ser um número' })
+  @IsPositive({ message: 'O valor do empréstimo deve ser positivo' })
   amount: number;
 
-  @ApiProperty({ description: 'Number of installments for the loan' })
-  @IsInt({ message: 'Number of installments must be an integer' })
-  @IsPositive({ message: 'Number of installments must be positive' })
+  @ApiProperty({ description: 'Número de parcelas para o empréstimo' })
+  @IsInt({ message: 'O número de parcelas deve ser um número inteiro' })
+  @IsPositive({ message: 'O número de parcelas deve ser positivo' })
   installments: number;
 }
