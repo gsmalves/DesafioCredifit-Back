@@ -112,4 +112,21 @@ export class LoanService {
     const loans = await this.loanRepository.find({ where: { employeeId }, relations: ['employee'] });
     return loans;
   }
+
+  async deleteLoan(id: number): Promise<void> {
+    const loan = await this.loanRepository.findOne({ where: { id } });
+    if (!loan) {
+      throw new HttpException('Loan not found', HttpStatus.NOT_FOUND);
+    }
+    await this.loanRepository.remove(loan);
+  }
+
+  async updateLoan(id: number, updateLoanDto: Partial<Loan>): Promise<Loan> {
+    const loan = await this.loanRepository.findOne({ where: { id } });
+    if (!loan) {
+      throw new HttpException('Loan not found', HttpStatus.NOT_FOUND);
+    }
+    const updatedLoan = Object.assign(loan, updateLoanDto);
+    return this.loanRepository.save(updatedLoan);
+  }
 }

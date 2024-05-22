@@ -1,28 +1,35 @@
 /* eslint-disable prettier/prettier */
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCompanyDto {
+    @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    cnpj?: string;
+    cnpj: string;
   
+    @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    businessName?: string;
+    businessName: string;
   
+    @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    fullName?: string;
+    fullName: string;
   
+    @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    cpf?: string;
+    cpf: string;
   
+    @ApiProperty({ required: false })
     @IsOptional()
     @IsEmail()
-    email?: string;
+    email: string;
   
+    @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    password?: string;
-  }
+    password: string;
+}

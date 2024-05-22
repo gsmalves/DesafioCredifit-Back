@@ -64,7 +64,7 @@ export class EmployeeService {
       employee.salary = salary;
     }
 
-    // Salvar as atualizações
+    
     return await this.employeeRepository.save(employee);
   }
 
