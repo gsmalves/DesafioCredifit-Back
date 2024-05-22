@@ -28,7 +28,15 @@ export class Loan {
 
   @Column({ nullable: true })
   paymentStatus: string;
-
-  @Column('jsonb')
+  
+  @Column('jsonb', { default: [] })
   installmentsList: { amount: number; dueDate: Date; paymentStatus?: string }[];
+
+  @Column({ nullable: true })
+  failureReason: string;
 }
+
+// enum FailureReason {
+//   SCORE = 'score',
+//   MARGIN = 'margin',
+// }

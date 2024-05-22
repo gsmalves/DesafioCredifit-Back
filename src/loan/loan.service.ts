@@ -21,13 +21,22 @@ export class LoanService {
       throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
     }
   
-    // Calcula a margem disponível para consignado (35% do salário)
+    const loan = new Loan();
+    loan.employee = employee;
+    loan.employeeId = employee.id;
+    loan.amount = amount;
+    loan.installments = installments;
+    loan.installmentAmount = amount / installments;
+    loan.firstInstallmentDate = new Date();
+    loan.firstInstallmentDate.setMonth(loan.firstInstallmentDate.getMonth() + 1);
+
     const consignableMargin = employee.salary * 0.35;
-  
-    // Verifica se o valor da parcela do empréstimo solicitado excede a margem disponível
     const monthlyInstallmentAmount = amount / installments;
+    
     if (monthlyInstallmentAmount > consignableMargin) {
-      throw new HttpException('Requested loan amount exceeds consignable margin', HttpStatus.BAD_REQUEST);
+      loan.paymentStatus = 'failed';
+      loan.failureReason = 'Margem';
+      return this.loanRepository.save(loan);
     }
   
     const scoreResponse = await axios.get(`https://run.mocky.io/v3/ef99c032-8e04-4e6a-ad3e-6f413a9e707a/${employee.cpf}`);
@@ -43,21 +52,16 @@ export class LoanService {
     } else if (employee.salary <= 12000) {
       minScore = 700;
     } else {
-      throw new HttpException('Salary out of range', HttpStatus.BAD_REQUEST);
+      loan.paymentStatus = 'failed';
+      loan.failureReason = 'Faixa salarial';
+      return this.loanRepository.save(loan);
     }
 
     if (score < minScore) {
-      throw new HttpException('Insufficient credit score', HttpStatus.BAD_REQUEST);
+      loan.paymentStatus = 'failed';
+      loan.failureReason = 'Score';
+      return this.loanRepository.save(loan);
     }
-
-    const loan = new Loan();
-    loan.employee = employee;
-    loan.employeeId = employee.id;
-    loan.amount = amount;
-    loan.installments = installments;
-    loan.installmentAmount = monthlyInstallmentAmount;
-    loan.firstInstallmentDate = new Date();
-    loan.firstInstallmentDate.setMonth(loan.firstInstallmentDate.getMonth() + 1);
 
     const installmentsList = [];
     for (let i = 0; i < installments; i++) {
@@ -69,26 +73,23 @@ export class LoanService {
 
     const savedLoan = await this.loanRepository.save(loan);
 
-    // Chamar o mock de gateway de pagamentos
     try {
       const paymentResponse = await axios.post('https://run.mocky.io/v3/ed999ce0-d115-4f73-b098-6277aabbd144', {
         loanId: savedLoan.id,
         amount: loan.amount,
-
       });
 
       if (paymentResponse.data.ok) {
         savedLoan.paymentStatus = 'paid';
-        // Atualizar o status das parcelas para "paid"
         savedLoan.installmentsList.forEach(installment => installment.paymentStatus = 'paid');
       } else {
         savedLoan.paymentStatus = 'failed';
-        // Atualizar o status das parcelas para "failed"
+        savedLoan.failureReason = 'Pagamento falhou';
         savedLoan.installmentsList.forEach(installment => installment.paymentStatus = 'failed');
       }
     } catch (error) {
       savedLoan.paymentStatus = 'failed';
-      // Atualizar o status das parcelas para "failed"
+      savedLoan.failureReason = 'Erro ao processar pagamento';
       savedLoan.installmentsList.forEach(installment => installment.paymentStatus = 'failed');
     }
 
@@ -105,16 +106,10 @@ export class LoanService {
       throw new HttpException('Loan not found', HttpStatus.NOT_FOUND);
     }
     return loan;
-
-  
   }
+
   async getLoansByEmployeeId(employeeId: number): Promise<Loan[]> {
-    // Busca todos os empréstimos associados ao funcionário com o ID fornecido
     const loans = await this.loanRepository.find({ where: { employeeId }, relations: ['employee'] });
     return loans;
-  
-
   }
-
-
 }
