@@ -44,6 +44,10 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+## Acess the Swagguer Documentation
+
+```bash
+# http://localhost:3000/api
 
 ## Test
 
